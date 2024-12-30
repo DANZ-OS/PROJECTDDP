@@ -1,10 +1,36 @@
 import streamlit as st
+import base64
+import pandas as pd
 
+def get_base64_of_bin_file(file_path):
+    with open(file_path, "rb") as file:
+        data = file.read()
+    return base64.b64encode(data).decode()
+
+# Fungsi untuk menambahkan gambar latar belakang dari file lokal
+def add_bg_from_local(file_path):
+    base64_str = get_base64_of_bin_file(file_path)
+    st.markdown(
+        f"""
+        <style>
+        .stApp {{
+            background-image: url("data:image/jpeg;base64,{base64_str}");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+# Menambahkan latar belakang gambar
+add_bg_from_local("bg2.jpg")
 
 OBAT = {
-    "Demam": {"Paracetamol": 5000, "Ibuprofen": 8000, "Panadol": 6000},
-    "Batuk": {"Hufagrip": 15000, "Woods": 14000, "Komix": 5000},
-    "Maag": {"Promag": 10000, "Polysilane": 12000, "Mylanta": 15000},
+    "Demam": {"Paracetamol": 120000, "Ibuprofen": 150000, "Panadol": 170000},
+    "Batuk": {"Hufagrip": 100000, "Woods": 120000, "Komix": 140000},
+    "Maag": {"Promag": 1500000, "Polysilane": 200000, "Mylanta": 180000},
 }
 
 # Inisialisasi state
@@ -12,13 +38,12 @@ if "pesanan" not in st.session_state:
     st.session_state.pesanan = {}
 
 # Layout utama dengan sidebar
-st.set_page_config(page_title="E-Apotik", layout="wide")
 st.sidebar.title("Pengguna")
 menu = st.sidebar.radio("Pilih Halaman:", ["Beranda", "Pemesanan", "Pembayaran"])
 
 # 1. Halaman Beranda
 if menu == "Beranda":
-    st.title("Selamat Datang di E-Apotik!")
+    st.title("Selamat Datang di E-Apotek!💊")
     st.markdown("""
         Aplikasi E-Apotik mempermudah Anda dalam mencari dan memesan obat. 
         Navigasikan melalui menu di sebelah kiri untuk memilih kategori:
