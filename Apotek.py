@@ -43,7 +43,7 @@ menu = st.sidebar.radio("Pilih Halaman:", ["Beranda", "Pemesanan", "Pembayaran"]
 
 # 1. Halaman Beranda
 if menu == "Beranda":
-    st.title("Selamat Datang di E-Apotek!💊")
+    st.title("Selamat Datang di E-Apotek!🏥")
     st.markdown("""
         Aplikasi E-Apotik mempermudah Anda dalam mencari dan memesan obat. 
         Navigasikan melalui menu di sebelah kiri untuk memilih kategori:
@@ -56,24 +56,31 @@ elif menu == "Pemesanan":
     st.title("Pilih Obat Sesuai Kebutuhan Anda")
     
     # Memilih kategori obat
+    # Pilih kategori penyakit
     kategori = st.selectbox("Pilih Kategori Penyakit:", ["", "Demam", "Batuk", "Maag"])
 
     if kategori:
-        obat = st.selectbox("Pilih Obat:", [""] + list(OBAT[kategori].keys()))
-        
-        if obat:
-            jumlah = st.number_input(f"Jumlah untuk {obat}:", min_value=1, step=1)
-            alamat = st.text_area("Masukkan Alamat Pengiriman:", placeholder="Alamat lengkap Anda...")
-            
-            if st.button("Tambahkan ke Keranjang"):
-                if alamat == "":
-                    st.error("Alamat pengiriman harus diisi!")
-                else:
-                    if obat in st.session_state.pesanan:
-                        st.session_state.pesanan[obat]["jumlah"] += jumlah
+    # Pilih obat berdasarkan kategori
+     obat = st.multiselect("Pilih Obat:", list(OBAT[kategori].keys()))
+    
+    # Meminta alamat pengiriman hanya sekali
+     alamat = st.text_area("Masukkan Alamat Pengiriman:", placeholder="Alamat lengkap Anda...")
+    
+     if obat:
+        if alamat == "":  # Pastikan alamat diisi
+            st.error("Alamat pengiriman harus diisi!")
+        else:
+            # Proses setiap obat yang dipilih
+            for o in obat:
+                jumlah = st.number_input(f"Jumlah untuk {o}:", min_value=1, step=1, key=f"jumlah_{o}")
+
+                # Button untuk menambahkan obat ke keranjang
+                if st.button(f"Tambahkan {o} ke Keranjang", key=f"tambah_{o}"):
+                    if o in st.session_state.pesanan:
+                        st.session_state.pesanan[o]["jumlah"] += jumlah
                     else:
-                        st.session_state.pesanan[obat] = {"jumlah": jumlah, "alamat": alamat}
-                    st.success(f"{obat} sebanyak {jumlah} telah ditambahkan ke pesanan. Alamat pengiriman: {alamat}")
+                        st.session_state.pesanan[o] = {"jumlah": jumlah, "alamat": alamat}
+                    st.success(f"{o} sebanyak {jumlah} telah ditambahkan ke pesanan. Alamat pengiriman: {alamat}")
 
 # 3. Halaman Pembayaran
 elif menu == "Pembayaran":
@@ -106,7 +113,7 @@ elif menu == "Pembayaran":
         st.write(f"Total setelah Pajak: Rp{total_setelah_pajak:,}")
         
         e_money = st.selectbox("Pilih Jenis E-Money:", ["", "OVO", "GoPay", "DANA"])
-        nomor = st.number_input("Masukkan nomor {e_money} anda: ")
+        nomor = st.number_input("Masukkan nomor {e_money} anda: ", min_value=0)
         
         # Input untuk memasukkan PIN
         pin = st.text_input("Masukkan PIN Anda:", type="password")
